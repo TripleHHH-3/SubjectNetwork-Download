@@ -1,0 +1,29 @@
+#下载的地址
+down-url:
+#  - http://www.zxxk.com/soft/25810958.html
+#  - http://www.zxxk.com/soft/25818395.html
+#  - http://www.zxxk.com/soft/25812931.html
+#  - http://www.zxxk.com/soft/25797698.html
+#  - http://www.zxxk.com/soft/25805037.html
+#  - http://www.zxxk.com/soft/25794418.html
+#  - http://www.zxxk.com/soft/25656780.html
+  - http://www.zxxk.com/soft/25761143.html
+  - http://www.zxxk.com/soft/25619880.html
+
+#账号信息
+account:
+  username: 13078281938
+  password: HhH237106102
+
+base-url: http://www.zxxk.com
+
+browser-conf:
+  is-show: true
+  User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.66 Safari/537.36
+  down-location: C:\Users\huanghuihong\Downloads
+
+cookies:
+  - domain: .zxxk.com
+    path: /
+    name: UT1
+    value: ut-131717-on-18FqT0wXAgA
