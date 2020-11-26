@@ -15,10 +15,30 @@ option.add_experimental_option('excludeSwitches', ['enable-automation'])
 
 bro = webdriver.Chrome(executable_path='./resources/chromedriver', options=option)
 
-# 进入网址
-bro.get(config.get("base-url"))
+bro.get("https://www.baidu.com/")
 
-bro.get("http://www.zxxk.com/soft/25810958.html")
+bro.execute_script("window.open()")
+print(type(bro.window_handles))
+bro.switch_to.window(bro.window_handles[1])
+bro.get("https://www.baidu.com/")
+
+
+bro.execute_script("window.open()")
+
+bro.switch_to.window(bro.window_handles[2])
+bro.get("https://www.baidu.com/")
+
+print(len(bro.window_handles))
+
+bro.close()
+bro.switch_to.window(bro.window_handles[1])
+bro.close()
+
+
+# 进入网址
+# bro.get(config.get("base-url"))
+
+# bro.get("http://www.zxxk.com/soft/25810958.html")
 
 # # 点击登录
 # login_btn = bro.find_element_by_class_name('login-btn')

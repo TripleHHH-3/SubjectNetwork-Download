@@ -24,11 +24,11 @@ option = ChromeOptions()
 option.add_experimental_option('excludeSwitches', ['enable-automation'])
 
 # 下载设置
-# prefs = {'profile.default_content_settings.popups': 0,  # 防止保存弹窗
-#          # 'download.default_directory':tmp_path,#设置默认下载路径
-#          "profile.default_content_setting_values.automatic_downloads": 1  # 允许多文件下载
-#          }
-# option.add_experimental_option('prefs', prefs)
+prefs = {'profile.default_content_settings.popups': 0,  # 防止保存弹窗
+         # 'download.default_directory':tmp_path,#设置默认下载路径
+         "profile.default_content_setting_values.automatic_downloads": 1  # 允许多文件下载
+         }
+option.add_experimental_option('prefs', prefs)
 
 if config.get("browser-conf.is-show"):
     bro = webdriver.Chrome(executable_path='./resources/chromedriver', options=option)
@@ -65,32 +65,40 @@ CommonLogin = bro.find_element_by_id("CommonLogin")
 CommonLogin.click()
 
 # 下载
-down_urls = config.get("down-url")
-for down_url in down_urls:
-    sleep(0.25)
-    bro.get(down_url)
-    # download = bro.find_element_by_xpath('//*[@id="btnSoftDownload"]/div')
-    # download.click()
-    # action = ActionChains(bro)
-    # action.move_to_element(download).click().perform()
+downUrlList = config.get("down-url")
+downList = []
+for index in range(len(downUrlList)):
+    if index % 5 == 0:
+        downList.append({downUrlList[index]: ""})
+    else:
+        downList[-1].update({downUrlList[index]: ""})
 
-    # web_element = bro.find_element_by_xpath('//*[@id="btnSoftDownload"]/div')
-    # result = WebDriverWait(bro, 10).until(
-    #     expected_conditions.element_to_be_clickable(web_element))
-    # result.click()
-    click = WebDriverWait(bro, 10).until(
-        expected_conditions.element_to_be_clickable((By.XPATH, '//*[@id="btnSoftDownload"]/div')))
-    action = ActionChains(bro)
-    action.move_to_element(click).click().perform()
+for downMap in downList:
+    for url in downMap:
+        # 打开新标签页
+        bro.execute_script("window.open()")
+        bro.switch_to.window(bro.window_handles[-1])
+        bro.get(url)
 
-    confirmBtns = bro.find_elements_by_xpath("//div[@class='modal-body']//*[contains(@class,'pw-confirm')]")
-    if len(confirmBtns) != 0:
-        for confirmBtn in confirmBtns:
-            try:
-                confirmBtn.click()
-                break
-            except:
-                continue
+        # 存储文件名
+        tree = etree.HTML(bro.page_source)
+        filename = tree.xpath('//div[@class="hd-des"]//i/text()')[0]
+        downMap[url] = filename
+
+        # 点击下载
+        download = WebDriverWait(bro, 10).until(
+            expected_conditions.element_to_be_clickable((By.XPATH, '//*[@id="btnSoftDownload"]/div')))
+        action = ActionChains(bro)
+        action.move_to_element(download).click().perform()
+
+        confirmBtns = bro.find_elements_by_xpath("//div[@class='modal-body']//*[contains(@class,'pw-confirm')]")
+        if len(confirmBtns) != 0:
+            for confirmBtn in confirmBtns:
+                try:
+                    confirmBtn.click()
+                    break
+                except:
+                    continue
 
 sleep(0.5)
 isDowning = True
@@ -114,3 +122,13 @@ logout = bro.find_element_by_xpath('//*[@id="LoginInfo"]/div[1]/div/div[1]/a[2]'
 logout.click()
 sleep(1)
 bro.quit()
+
+# download = bro.find_element_by_xpath('//*[@id="btnSoftDownload"]/div')
+# download.click()
+# action = ActionChains(bro)
+# action.move_to_element(download).click().perform()
+
+# web_element = bro.find_element_by_xpath('//*[@id="btnSoftDownload"]/div')
+# result = WebDriverWait(bro, 10).until(
+#     expected_conditions.element_to_be_clickable(web_element))
+# result.click()
