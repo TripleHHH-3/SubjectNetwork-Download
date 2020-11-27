@@ -18,22 +18,18 @@ bro = webdriver.Chrome(executable_path='./resources/chromedriver', options=optio
 bro.get("https://www.baidu.com/")
 
 bro.execute_script("window.open()")
-print(type(bro.window_handles))
+
 bro.switch_to.window(bro.window_handles[1])
 bro.get("https://www.baidu.com/")
-
 
 bro.execute_script("window.open()")
 
 bro.switch_to.window(bro.window_handles[2])
 bro.get("https://www.baidu.com/")
 
-print(len(bro.window_handles))
-
-bro.close()
-bro.switch_to.window(bro.window_handles[1])
-bro.close()
-
+for i in range(2):
+    bro.switch_to.window(bro.window_handles[-1])
+    bro.close()
 
 # 进入网址
 # bro.get(config.get("base-url"))

@@ -1,3 +1,4 @@
+import copy
 import os
 
 from lxml import etree
@@ -30,6 +31,7 @@ prefs = {'profile.default_content_settings.popups': 0,  # 防止保存弹窗
          }
 option.add_experimental_option('prefs', prefs)
 
+# 是否显示浏览器
 if config.get("browser-conf.is-show"):
     bro = webdriver.Chrome(executable_path='./resources/chromedriver', options=option)
 else:
@@ -66,13 +68,16 @@ CommonLogin.click()
 
 # 下载
 downUrlList = config.get("down-url")
+downSize = config.get("browser-conf.down-count")
 downList = []
 for index in range(len(downUrlList)):
-    if index % 5 == 0:
-        downList.append({downUrlList[index]: ""})
+    if index % downSize == 0:
+        downList.append({downUrlList[index]: None})
     else:
-        downList[-1].update({downUrlList[index]: ""})
+        downList[-1].update({downUrlList[index]: None})
 
+downMax = config.get("browser-conf.down-max")
+fp = open("./resources/finishDown.txt", "a", encoding="utf-8")
 for downMap in downList:
     for url in downMap:
         # 打开新标签页
@@ -80,38 +85,61 @@ for downMap in downList:
         bro.switch_to.window(bro.window_handles[-1])
         bro.get(url)
 
-        # 存储文件名
+        # 存储文件相关信息
         tree = etree.HTML(bro.page_source)
-        filename = tree.xpath('//div[@class="hd-des"]//i/text()')[0]
-        downMap[url] = filename
+        filename = tree.xpath('//div[@class="hd-des"]//h1/@title')[0]
+        filesize = tree.xpath("//div[@class='dropdown']/p[1]/span[3]/text()")[0]
+        filesize = int(filesize.split("：")[1].replace("KB", ""))
+        downMap[url] = [filename, filesize, downMax * 1000 > filesize]
 
-        # 点击下载
-        download = WebDriverWait(bro, 10).until(
-            expected_conditions.element_to_be_clickable((By.XPATH, '//*[@id="btnSoftDownload"]/div')))
-        action = ActionChains(bro)
-        action.move_to_element(download).click().perform()
+        if downMap[url][2]:
+            # 点击下载
+            download = WebDriverWait(bro, 10).until(
+                expected_conditions.element_to_be_clickable((By.XPATH, '//*[@id="btnSoftDownload"]/div')))
+            action = ActionChains(bro)
+            action.move_to_element(download).click().perform()
 
-        confirmBtns = bro.find_elements_by_xpath("//div[@class='modal-body']//*[contains(@class,'pw-confirm')]")
-        if len(confirmBtns) != 0:
-            for confirmBtn in confirmBtns:
-                try:
-                    confirmBtn.click()
-                    break
-                except:
-                    continue
+            confirmBtns = bro.find_elements_by_xpath("//div[@class='modal-body']//*[contains(@class,'pw-confirm')]")
+            if len(confirmBtns) != 0:
+                for confirmBtn in confirmBtns:
+                    try:
+                        confirmBtn.click()
+                        break
+                    except:
+                        continue
 
-sleep(0.5)
-isDowning = True
-while isDowning:
-    listdir = os.listdir(config.get("browser-conf.down-location"))
-    for file in listdir:
-        if file.endswith(".crdownload"):
-            sleep(0.5)
+    needToDownMap = copy.deepcopy(downMap)
+    while True:
+        fileList = os.listdir(config.get("browser-conf.down-location"))
+        downFinishList = []
+        for file in fileList:
+            downFinishList.append(os.path.splitext(file)[0])
+
+        for key in list(needToDownMap):
+            if needToDownMap[key][2]:
+                if needToDownMap[key][0] in downFinishList:
+                    fp.write(key + ":" + needToDownMap[key][0] + ":" + str(needToDownMap[key][1]) + "\n")
+                    needToDownMap.pop(key)
+            else:
+                fp.write(
+                    key + ":" + needToDownMap[key][0] + ":" + str(needToDownMap[key][1]) + ":" + "这个文件太大了死猪" + "\n")
+                needToDownMap.pop(key)
+
+        if len(needToDownMap) == 0:
             break
-    else:
-        isDowning = False
+
+        sleep(0.2)
+
+    for index in range(len(downMap)):
+        bro.switch_to.window(bro.window_handles[-1])
+        bro.close()
+    bro.switch_to.window(bro.window_handles[0])
+
+fp.write("下载完啦，又能挣到钱啦，棒猪！\n")
+fp.close()
 
 # 鼠标悬停
+bro.switch_to.window(bro.window_handles[0])
 action = ActionChains(bro)
 LoginInfo = bro.find_element_by_id("LoginInfo")
 action.move_to_element(LoginInfo).perform()
