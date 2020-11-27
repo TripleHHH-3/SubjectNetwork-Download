@@ -21,7 +21,11 @@ dit[1] = [1, 3, 4]
 for v in dit.values():
     print(v[0])
 
-print(os.path.splitext("山东省日照第三中学人教版生物必修一6.1细胞增殖学案.doc")[0])
+print (os.getcwd()) #获取当前工作目录路径
+print (os.path.abspath('.')) #获取当前工作目录路径
+print (os.path.abspath('test.txt')) #获取当前目录文件下的工作目录路径
+print( os.path.abspath('..') )#获取当前工作的父目录 ！注意是父目录路径
+print (os.path.abspath(os.curdir)) #获取当前工作目录路径
 # with open("./test.txt", "a", encoding="utf-8") as file:
 #     file.write("hi!")
 

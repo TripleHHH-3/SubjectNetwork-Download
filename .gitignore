@@ -1,5 +1,6 @@
 build
 dist
 .idea
+logs
 main.spec
 SubjectNetwork-Download.spec

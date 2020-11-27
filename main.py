@@ -68,10 +68,10 @@ CommonLogin.click()
 
 # 下载
 downUrlList = config.get("down-url")
-downSize = config.get("browser-conf.down-count")
+downCount = config.get("browser-conf.down-count")
 downList = []
 for index in range(len(downUrlList)):
-    if index % downSize == 0:
+    if index % downCount == 0:
         downList.append({downUrlList[index]: None})
     else:
         downList[-1].update({downUrlList[index]: None})
@@ -107,6 +107,10 @@ for downMap in downList:
                         break
                     except:
                         continue
+                else:
+                    print("点击下载失败")
+                    bro.quit()
+                    exit()
 
     needToDownMap = copy.deepcopy(downMap)
     while True:
