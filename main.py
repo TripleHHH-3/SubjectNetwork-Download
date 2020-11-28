@@ -67,7 +67,7 @@ CommonLogin = bro.find_element_by_id("CommonLogin")
 CommonLogin.click()
 
 # 下载
-downUrlList = config.get("down-url")
+downUrlList = config.get("down-url") if config.get("down-url") else []
 downCount = config.get("browser-conf.down-count")
 downList = []
 for index in range(len(downUrlList)):
@@ -107,10 +107,10 @@ for downMap in downList:
                         break
                     except:
                         continue
-                else:
-                    print("点击下载失败")
-                    bro.quit()
-                    exit()
+                # else:
+                #     print("点击下载失败")
+                #     bro.quit()
+                #     exit()
 
     needToDownMap = copy.deepcopy(downMap)
     while True:
@@ -142,16 +142,9 @@ for downMap in downList:
 fp.write("下载完啦，又能挣到钱啦，棒猪！\n")
 fp.close()
 
-# 鼠标悬停
-bro.switch_to.window(bro.window_handles[0])
-action = ActionChains(bro)
-LoginInfo = bro.find_element_by_id("LoginInfo")
-action.move_to_element(LoginInfo).perform()
-sleep(0.25)
-
 # 退出
 logout = bro.find_element_by_xpath('//*[@id="LoginInfo"]/div[1]/div/div[1]/a[2]')
-logout.click()
+bro.execute_script("arguments[0].click();", logout)
 sleep(1)
 bro.quit()
 
@@ -164,3 +157,12 @@ bro.quit()
 # result = WebDriverWait(bro, 10).until(
 #     expected_conditions.element_to_be_clickable(web_element))
 # result.click()
+
+# 鼠标悬停
+# bro.switch_to.window(bro.window_handles[0])
+# action = ActionChains(bro)
+# LoginInfo = bro.find_element_by_id("LoginInfo")
+# action.move_to_element(LoginInfo).perform()
+# sleep(0.25)
+# logout = bro.find_element_by_xpath('//*[@id="LoginInfo"]/div[1]/div/div[1]/a[2]')
+# logout.click()
