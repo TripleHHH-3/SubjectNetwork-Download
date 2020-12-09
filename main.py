@@ -94,10 +94,11 @@ for downMap in downList:
 
         if downMap[url][2]:
             # 点击下载
-            download = WebDriverWait(bro, 10).until(
-                expected_conditions.element_to_be_clickable((By.XPATH, '//*[@id="btnSoftDownload"]/div')))
-            action = ActionChains(bro)
-            action.move_to_element(download).click().perform()
+            # download = WebDriverWait(bro, 10).until(
+            #     expected_conditions.element_to_be_clickable((By.XPATH, '//*[@id="btnSoftDownload"]/div')))
+            # action = ActionChains(bro)
+            # action.move_to_element(download).click().perform()
+            bro.find_element_by_xpath('//*[@id="btnSoftDownload"]/div').click()
 
             confirmBtns = bro.find_elements_by_xpath("//div[@class='modal-body']//*[contains(@class,'pw-confirm')]")
             if len(confirmBtns) != 0:
@@ -115,18 +116,22 @@ for downMap in downList:
     needToDownMap = copy.deepcopy(downMap)
     while True:
         fileList = os.listdir(config.get("browser-conf.down-location"))
-        downFinishList = []
-        for file in fileList:
-            downFinishList.append(os.path.splitext(file)[0])
 
         for key in list(needToDownMap):
             if needToDownMap[key][2]:
-                if needToDownMap[key][0] in downFinishList:
-                    fp.write(key + ":" + needToDownMap[key][0] + ":" + str(needToDownMap[key][1]) + "\n")
-                    needToDownMap.pop(key)
+                for file in fileList:
+                    if needToDownMap[key][0] in file:
+                        fp.write(key + ":" + needToDownMap[key][0] + ":" + str(needToDownMap[key][1]) + "\n")
+                        fp.flush()
+                        needToDownMap.pop(key)
+
+                # if needToDownMap[key][0] in downFinishList:
+                #     fp.write(key + ":" + needToDownMap[key][0] + ":" + str(needToDownMap[key][1]) + "\n")
+                #     needToDownMap.pop(key)
             else:
                 fp.write(
                     key + ":" + needToDownMap[key][0] + ":" + str(needToDownMap[key][1]) + ":" + "这个文件太大了死猪" + "\n")
+                fp.flush()
                 needToDownMap.pop(key)
 
         if len(needToDownMap) == 0:
